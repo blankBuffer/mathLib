@@ -17,13 +17,29 @@ void Var::print(){
     printf("%s",name);
 }
 Container* Var::copy(){
-    return this;
+    char* name = new char[nameLength];
+    for(int i = 0;i<nameLength;i++) name[i] = this->name[i];
+    return new Var(name,nameLength);
 }
 Container* Var::eval(){
-    return this;
+    return this->copy();
 }
 bool Var::equalStruct(Container* c){
-    if(c==this) return true;
+    if(c->type == VAR){
+        Var* other = (Var*)c;
+        if(other->nameLength == this->nameLength){
+            bool same = true;
+            for(int i = 0;i<nameLength;i++){
+                if(other->name[i]!=this->name[i]){
+                    same = false;
+                    break;
+                }
+            }
+            return same;
+        }
+    }
     return false;
 }
-Var::~Var(){};
+Var::~Var(){
+    delete [] name;
+};

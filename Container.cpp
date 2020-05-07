@@ -8,14 +8,11 @@
 
 #include "Container.hpp"
 
-int Container::numberOfContainers = 0;
-void Container::printNumberOfContainers(){
-    printf("\n%d\n",numberOfContainers);
-}
+int Container::conCount = 0;
 
 Container::Container(){
-    numberOfContainers++;
+    conCount++;
 };
 Container::~Container(){
-    numberOfContainers--;
+    conCount--;
 };

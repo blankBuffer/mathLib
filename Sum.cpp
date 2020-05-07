@@ -1,52 +1,51 @@
 //
-//  Product.cpp
+//  Sum.cpp
 //  MathSystem
 //
 //  Created by Benjamin Currie on 5/6/20.
 //  Copyright © 2020 Benjamin Currie. All rights reserved.
 //
 
-#include "Container.hpp"
-#include "Product.hpp"
+#include "Sum.hpp"
 #include "Const.hpp"
 
-Product::Product(Container** containers,int containersLength){
+Sum::Sum(Container** containers,int containersLength){
     this->containers = containers;
     this->containersLength = containersLength;
-    type = PROD;
+    type = SUM;
 }
-void Product::print(){
+void Sum::print(){
     printf("(");
     for(int i = 0;i<containersLength-1;i++){
         containers[i]->print();
-        printf("*");
+        printf("+");
     }
     containers[containersLength-1]->print();
     printf(")");
 }
-Container* Product::copy(){
+Container* Sum::copy(){
     Container** list = new Container*[containersLength];
     for(int i = 0;i<containersLength;i++) list[i] = containers[i]->copy();
-    return new Product(list,containersLength);
+    return new Sum(list,containersLength);
 }
-Container* Product::eval(){
+Container* Sum::eval(){
     Container* result;
     Container** containers = new Container*[containersLength];
     for(int i = 0;i<containersLength;i++) containers[i] = this->containers[i]->eval();
     
     //if length is 1 return the container
     if(containersLength==1){
-        printf("\nproduct not a list\n");
+        printf("\nsum not a list\n");
         result = containers[0]->copy();
         for(int i = 0;i<containersLength;i++) delete containers[i];
         delete [] containers;
         return result;
     }
-    //if a container is a prod
+    //if a container is a sum
     int total = 0;
     for(int i = 0;i<containersLength;i++){
-        if(containers[i]->type==PROD){
-            total+=((Product*)containers[i])->containersLength;
+        if(containers[i]->type==SUM){
+            total+=((Sum*)containers[i])->containersLength;
         }else total++;
     }
     if(total>containersLength){
@@ -54,10 +53,10 @@ Container* Product::eval(){
         Container** list = new Container*[total];
         int currentIndex = 0;
         for(int i = 0;i<containersLength;i++){
-            if(containers[i]->type==PROD){
-                Product* prod = (Product*)containers[i];
-                for(int j = 0;j<prod->containersLength;j++){
-                    list[currentIndex] = prod->containers[j]->copy();
+            if(containers[i]->type==SUM){
+                Sum* sum = (Sum*)containers[i];
+                for(int j = 0;j<sum->containersLength;j++){
+                    list[currentIndex] = sum->containers[j]->copy();
                     currentIndex++;
                 }
             }else{
@@ -67,9 +66,9 @@ Container* Product::eval(){
         }
         for(int i = 0;i<containersLength;i++) delete containers[i];
         delete [] containers;
-        return new Product(list,total);
+        return new Sum(list,total);
     }
-    //combind numerical constants
+    //combining numbers as sum
     bool isNum[containersLength];
     for(int i = 0;i<containersLength;i++) isNum[i] = false;
     int count = 0;
@@ -83,9 +82,9 @@ Container* Product::eval(){
         }
     }
     if(count>1){
-        printf("\ncombining constants in product\n");
+        printf("\ncombining constants in sum\n");
         int newLength = containersLength-count+1;
-        Const* combin = new Const(1L);
+        Const* combin = new Const(0L);
         Container** newList = new Container*[newLength-1];
         int currentIndex = 0;
         for(int i = 0;i<containersLength;i++){
@@ -93,19 +92,25 @@ Container* Product::eval(){
                 newList[currentIndex] = containers[i]->copy();
                 currentIndex++;
             }else{
-                combin->value*=((Const*)containers[i])->value;
+                combin->value+=((Const*)containers[i])->value;
             }
         }
         newList[newLength-1] = combin;
         for(int i = 0;i<containersLength;i++) delete containers[i];
         delete [] containers;
-        return new Product(newList,newLength);
+        return new Sum(newList,newLength);
     }
-    return new Product(containers,containersLength);
+    //combine a fractional pair if exists
+    
+    
+    
+    //if one constant and one fraction in list combine them
+    
+    return new Sum(containers,containersLength);
 }
-bool Product::equalStruct(Container* c){
-    if(c->type == PROD){
-        Product* other = (Product*)c;
+bool Sum::equalStruct(Container* c){
+    if(c->type == SUM){
+        Sum* other = (Sum*)c;
         bool used[other->containersLength];
         for(int i = 0;i<other->containersLength;i++) used[i] = false;
         for(int i = 0;i<containersLength;i++){
@@ -125,7 +130,7 @@ bool Product::equalStruct(Container* c){
     }
     return false;
 }
-Product::~Product(){
+Sum::~Sum(){
     for(int i = 0;i<containersLength;i++) delete containers[i];
     delete[] containers;
 }

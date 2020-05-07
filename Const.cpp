@@ -26,12 +26,10 @@ void Const::print(){
 Container* Const::copy(){
     if(!isContainer)return new Const(value);
     else return container->copy();
-    return nullptr;
 }
 Container* Const::eval(){
     if(!isContainer)return new Const(value);
     else return container->eval();
-    return nullptr;
 }
 bool Const::equalStruct(Container* c){
     if(c->type == CONST){

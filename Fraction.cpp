@@ -40,12 +40,12 @@ Container* Fraction::eval(){
     //  2/4 -> 1/2
     if(numerator->type==CONST && denominator->type==CONST){
         printf("\ntrying to reduce fraction\n");
-        int n = ((Const*)numerator)->value;
-        int d = ((Const*)denominator)->value;
-        int min;
+        long n = ((Const*)numerator)->value;
+        long d = ((Const*)denominator)->value;
+        long min;
         if(n<d) min = n;
         else min = d;
-        for(int i = min;i>1;i--){
+        for(long i = min;i>1;i--){
             if(n%i==0&&d%i==0){
                 n/=i;
                 d/=i;
@@ -104,9 +104,34 @@ Container* Fraction::eval(){
         
     }
     //check if denominator product has same container as numerator
+    if(denominator->type==PROD){
+        
+    }
+    //if products in both numerator and denominator with one constant in each
+    
+    //if numerator proudct with one constant and denominator constant
+    
+    //if denominator proudct with one constant and numerator constant
     
     //check if fraction in numertor and fraction in denominator
-    
+    if(numerator->type == FRAC && denominator->type == FRAC){
+        printf("\nfraction compression\n");
+        Fraction* fracNum = (Fraction*)numerator;
+        Fraction* fracDen = (Fraction*)denominator;
+        Container** numProdList = new Container*[2];
+        Container** denProdList = new Container*[2];
+        numProdList[0] = fracNum->numerator->copy();
+        numProdList[1] = fracDen->denominator->copy();
+        denProdList[0] = fracNum->denominator->copy();
+        denProdList[1] = fracDen->numerator->copy();
+        Container* result;
+        
+        result = new Fraction(new Product(numProdList,2),new Product(denProdList,2));
+        delete numerator;
+        delete denominator;
+        
+        return result;
+    }
     
     return new Fraction(numerator,denominator);
 }
