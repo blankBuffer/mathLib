@@ -18,6 +18,14 @@ struct Product : public Container{
     void print();
     Container* copy();
     Container* eval();
+    Container* convertToSingleProductList(Container* current);
+    Container* combinedConstants(Container* current);
+    Container* combinedIConstants(Container* current);
+    Container* checkIfAlone(Container* current);
+    Container* removeOne(Container* current);
+    Container* deleteIfZero(Container* current);
+    Container* simpleFraction(Container* current);
+    void modList(Container* current,bool* indexOfR,int modLength);
     bool equalStruct(Container* c);
     ~Product();
 };

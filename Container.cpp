@@ -9,6 +9,7 @@
 #include "Container.hpp"
 
 int Container::conCount = 0;
+bool Container::printSteps = false;
 
 Container::Container(){
     conCount++;

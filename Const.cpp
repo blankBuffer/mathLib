@@ -11,37 +11,23 @@
 
 Const::Const(long value){
     this->value = value;
-    isContainer = false;
-    type = CONST;
-}
-Const::Const(Container* container){
-    this->container = container;
-    isContainer = true;
     type = CONST;
 }
 void Const::print(){
-    if(!isContainer) printf("%ld",value);
-    else container->print();
+    printf("%ld",value);
 }
 Container* Const::copy(){
-    if(!isContainer)return new Const(value);
-    else return container->copy();
+    return new Const(value);
 }
 Container* Const::eval(){
-    if(!isContainer)return new Const(value);
-    else return container->eval();
+    return copy();
 }
 bool Const::equalStruct(Container* c){
     if(c->type == CONST){
         Const* other = (Const*)c;
-        if(!isContainer && !other->isContainer){
-            if(value==other->value) return true;
-        }else if(isContainer && other->isContainer){
-            return container->equalStruct(other->container);
-        }
+        if(value==other->value) return true;
     }
     return false;
 }
 Const::~Const(){
-    if(isContainer) delete container;
 };

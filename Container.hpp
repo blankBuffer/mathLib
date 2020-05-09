@@ -12,8 +12,9 @@
 #include <stdio.h>
 
 struct Container{
-    static const int CONST = 0,VAR = 1,FRAC = 2,PROD = 3,SUM = 4;
+    static const int CONST = 0,VAR = 1,PROD = 2,POW = 3;
     static int conCount;
+    static bool printSteps;
     int type;
     virtual void print() = 0;
     virtual Container* copy() = 0;

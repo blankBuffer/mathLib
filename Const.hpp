@@ -13,11 +13,8 @@
 #include "Container.hpp"
 
 struct Const: public Container{
-    bool isContainer;
     long value;
-    Container* container;
     Const(long value);
-    Const(Container* container);
     void print();
     Container* copy();
     Container* eval();

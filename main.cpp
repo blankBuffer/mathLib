@@ -1,63 +1,64 @@
-#include <iostream>
+#include <stdio.h>
 
-#include "Container.hpp"
-#include "Var.hpp"
-#include "Const.hpp"
-#include "Product.hpp"
-#include "Fraction.hpp"
-#include "Sum.hpp"
+#include "ConTypes.hpp"
 
 void printM(){
-    printf("\n%d\n",Container::conCount);
+    printf("\nContainers left in memory: %d\n",Container::conCount);
+}
+
+Container* createStruct(){
+    printf("container type 0:Constant, 1:Variable, 2:Product, 3:Power\n");
+    int type = 0;
+    scanf("%d",&type);
+    if(type == Container::CONST){
+        printf("type integer\n");
+        long value = 0;
+        scanf("%ld",&value);
+        return new Const(value);
+    }else if(type == Container::VAR){
+        char name[16];
+        printf("type variable name\n");
+        scanf("%s",name);
+        char* nameH = new char[16];
+        for(int i = 0;i<16;i++) nameH[i] = name[i];
+        return new Var(nameH,16);
+    }else if(type == Container::PROD){
+        int len = 0;
+        printf("length of product\n");
+        scanf("%d",&len);
+        Container** list = new Container*[len];
+        for(int i = 0;i<len;i++){
+            list[i] = createStruct();
+        }
+        Container* prod = new Product(list,len);
+        return prod;
+    }else if(type == Container::POW){
+        printf("describe base\n");
+        Container* base = createStruct();
+        printf("describe expo\n");
+        Container* expo = createStruct();
+        return new Power(base,expo);
+    }
+    return 0;
+}
+
+void simpleUserProg(){
+    printf("%ld",sizeof(Container));
+    Container* con = createStruct();
+    Container::printSteps = true;
+    printf("----------------------------\n");
+    con->print();
+    Container* c = con->eval();
+    printf("\n----------------------------\n");
+    c->print();
+    delete c;
+    delete con;
+    printf("\n");
 }
 
 int main() {
-    
-    char* name = new char[1];
-    name[0] = 'x';
-    Var* x = new Var(name,1);
-    
-    Container** factor1List = new Container*[2];
-    factor1List[0] = x;
-    factor1List[1] = new Const(1);
-    Container* factor1 = new Sum(factor1List,2);
-    
-    Container** factor2List = new Container*[2];
-    factor2List[0] = x;
-    factor2List[1] = new Const(5);
-    Container* factor2 = new Sum(factor2List,2);
-    
-    Container** factor3List = new Container*[2];
-    factor3List[0] = x;
-    factor3List[1] = new Const(7);
-    Container* factor3 = new Sum(factor3List,2);
-    
-    Container** numList = new Container*[2];
-    numList[0] = factor1;
-    numList[1] = factor2;
-    
-    Container* num = new Product(numList,2);
-    
-    Container** denList = new Container*[2];
-    denList[0] = factor3;
-    denList[1] = factor1;
-    
-    Container* den = new Product(denList,2);
-    
-    Container* frac = new Fraction(num,den);
-    
+    simpleUserProg();
     printM();
-    Container* simp = frac->copy();
-    simp->print();
-    for(int i = 0;i<10;i++){
-        std::cin.ignore();
-        Container* old = simp;
-        simp=simp->eval();
-        delete old;
-        simp->print();
-    }
-    delete simp;
-    printM();
-    frac->print();
+    return 0;
     
 }
