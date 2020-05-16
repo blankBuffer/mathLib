@@ -21,7 +21,14 @@ struct Power : public Container{
     Container* eval();
     Container* tryToConst(Container* current);
     Container* convertToSinglePower(Container* current);
+    Container* distributePower(Container* current);
+    Container* exponentZero(Container* current);
+    Container* baseZeroOrOne(Container* current);
+    Container* fracExpo(Container* current);
+    Container* invExpo(Container* current);
     bool equalStruct(Container* c);
+    bool containsVars();
+    bool containsContainer(Container* c);
     Power(Container* base,Container* expo);
     ~Power();
 };

@@ -20,6 +20,8 @@ struct Container{
     virtual Container* copy() = 0;
     virtual Container* eval() = 0;
     virtual bool equalStruct(Container* c) = 0;
+    virtual bool containsVars() = 0;
+    virtual bool containsContainer(Container* c) = 0;
     Container();
     virtual ~Container();
 };

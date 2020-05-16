@@ -17,13 +17,13 @@ Product::Product(Container** containers,int containersLength){
     type = PROD;
 }
 void Product::print(){
-    printf("(");
+    printf("{");
     for(int i = 0;i<containersLength-1;i++){
         containers[i]->print();
         printf("*");
     }
     if(containersLength>0) containers[containersLength-1]->print();
-    printf(")");
+    printf("}");
 }
 Container* Product::copy(){
     Container** list = new Container*[containersLength];
@@ -229,6 +229,13 @@ Container* Product::simpleFraction(Container* current){
     Const* de = (Const*)(p->base);
     long den = de->value;
     
+    long sign = 1;
+    if(num < 0 != den<0){
+        sign = -1;
+        if(num<0) num = -num;
+        else den = -den;
+    }
+    
     long min;
     if(num<den) min = num;
     else min = den;
@@ -239,6 +246,8 @@ Container* Product::simpleFraction(Container* current){
             den/=i;
         }
     }
+    
+    num*=sign;
     
     delete currentProd->containers[indexOfConst];
     delete currentProd->containers[indexOfPower];
@@ -263,8 +272,29 @@ void Product::modList(Container* current,bool* indexOfR,int modLength){
     currentProd->containersLength = modLength;
     currentProd->containers = newList;
 }
-Container* Product::eval(){
+
+Container* Product::combineConstantExponents(Container* current){
+    //keep list of duplicates after the first
+    //duplicate base or container
+    //keep a sum list for all the exponents the default is one
+    if(current->type!=PROD) return current;
+    Product* currentProd = (Product*)current;
     
+    bool usedIndex[currentProd->containersLength];
+    int numberOfUni = 0;
+    for(int i = 0;i<currentProd->containersLength;i++){
+        //count duplicates after this iteration
+        for(int j = i+1;j<currentProd->containersLength;j++){
+            
+        }
+    }
+    
+    
+    return current;
+}
+
+Container* Product::eval(){
+    if(Container::printSteps) printf("\nevaluating product\n");
     //make local containers list with simplified sub components
     Container** containers = new Container*[containersLength];
     for(int i = 0;i<containersLength;i++) containers[i] = this->containers[i]->eval();
@@ -275,6 +305,7 @@ Container* Product::eval(){
     current = combinedConstants(current);
     current = combinedIConstants(current);
     current = simpleFraction(current);
+    current = combineConstantExponents(current);
     current = removeOne(current);
     current = checkIfAlone(current);
     
@@ -300,6 +331,24 @@ bool Product::equalStruct(Container* c){
             if(!found) return false;
         }
         return true;
+    }
+    return false;
+}
+bool Product::containsVars(){
+    bool contains = false;
+    for(int i = 0;i<containersLength;i++){
+        contains = containers[i]->containsVars();
+        if(contains) break;
+    }
+    return contains;
+}
+bool Product::containsContainer(Container* c){
+    bool contains = false;
+    contains = c->equalStruct(this);
+    if(contains) return true;
+    for (int i = 0; i<containersLength; i++) {
+        contains = containers[i]->containsContainer(c);
+        if(contains) return true;
     }
     return false;
 }

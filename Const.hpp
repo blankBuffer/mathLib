@@ -13,12 +13,14 @@
 #include "Container.hpp"
 
 struct Const: public Container{
-    long value;
+    long int value;
     Const(long value);
     void print();
     Container* copy();
     Container* eval();
     bool equalStruct(Container* c);
+    bool containsVars();
+    bool containsContainer(Container* c);
     ~Const();
 };
 

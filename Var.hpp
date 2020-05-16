@@ -20,6 +20,8 @@ struct Var: public Container{
     Container* copy();
     Container* eval();
     bool equalStruct(Container* c);
+    bool containsVars();
+    bool containsContainer(Container* c);
     ~Var();
 };
 

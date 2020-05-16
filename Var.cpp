@@ -40,6 +40,12 @@ bool Var::equalStruct(Container* c){
     }
     return false;
 }
+bool Var::containsVars(){
+    return true;
+}
+bool Var::containsContainer(Container* c){
+    return c->equalStruct(this);
+}
 Var::~Var(){
     delete [] name;
 };
