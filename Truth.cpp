@@ -7,3 +7,13 @@
 //
 
 #include "Truth.hpp"
+
+Truth::Truth(Container* left,Container* right){
+    this->left = left;
+    this->right = right;
+}
+
+Truth::~Truth(){
+    delete left;
+    delete right;
+}

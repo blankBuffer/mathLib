@@ -10,6 +10,7 @@
 #include "Product.hpp"
 #include "Const.hpp"
 #include "Power.hpp"
+#include "Sum.hpp"
 
 Product::Product(Container** containers,int containersLength){
     this->containers = containers;
@@ -244,6 +245,7 @@ Container* Product::simpleFraction(Container* current){
         if(num%i==0 && den%i==0){
             num/=i;
             den/=i;
+            break;
         }
     }
     
@@ -273,24 +275,69 @@ void Product::modList(Container* current,bool* indexOfR,int modLength){
     currentProd->containers = newList;
 }
 
-Container* Product::combineConstantExponents(Container* current){
-    //keep list of duplicates after the first
-    //duplicate base or container
-    //keep a sum list for all the exponents the default is one
+Container* Product::combineContainers(Container* current){
     if(current->type!=PROD) return current;
     Product* currentProd = (Product*)current;
-    
+    Container** newProd = new Container*[currentProd->containersLength];
+    int currentProdIndex = 0;
     bool usedIndex[currentProd->containersLength];
-    int numberOfUni = 0;
+    for(int i = 0;i<currentProd->containersLength;i++) usedIndex[i] = false;
     for(int i = 0;i<currentProd->containersLength;i++){
-        //count duplicates after this iteration
-        for(int j = i+1;j<currentProd->containersLength;j++){
-            
+        if(usedIndex[i]) continue;
+        Container** sum = new Container*[currentProd->containersLength-i];
+        int currentSumIndex = 0;
+        Container* currentCont = currentProd->containers[i];
+        if(currentCont->type == POW){
+            Power* pCast = (Power*)currentCont;
+            currentCont = pCast->base;
+            sum[0] = pCast->expo->copy();
+            currentSumIndex++;
+        }else{
+            sum[0] = new Const(1);
+            currentSumIndex++;
         }
+        for(int j = i+1;j<currentProd->containersLength;j++){
+            if(usedIndex[j]) continue;
+            if(currentProd->containers[j]->type == CONST) continue;
+            if(currentProd->containers[j]->type == POW){
+                Power* p = (Power*)(currentProd->containers[j]);
+                if(p->base->equalStruct(currentCont)){
+                    if(Container::printSteps) printf("\nadding exponents\n");
+                    sum[currentSumIndex] = p->expo->copy();
+                    currentSumIndex++;
+                    usedIndex[j] = true;
+                }
+            }else{
+                if(currentProd->containers[j]->equalStruct(currentCont)){
+                    if(Container::printSteps) printf("\nadding 1 to exponent\n");
+                    sum[currentSumIndex] = new Const(1);
+                    currentSumIndex++;
+                    usedIndex[j] = true;
+                }
+            }
+        }
+        Power* com = 0;
+        if(currentSumIndex>1){
+            Container** sumResized = new Container*[currentSumIndex];
+            for(int m = 0;m<currentSumIndex;m++) sumResized[m] = sum[m];
+            delete[] sum;
+            Sum* sumObj = new Sum(sumResized,currentSumIndex);
+            com = new Power(currentCont->copy(),sumObj);
+        }else{
+            com = new Power(currentCont->copy(),sum[0]);
+            delete[] sum;
+        }
+        
+        Container* comEval = com->eval();
+        delete com;
+        newProd[currentProdIndex] = comEval;
+        currentProdIndex++;
     }
-    
-    
-    return current;
+    Container** prodResized = new Container*[currentProdIndex];
+    for(int m = 0;m<currentProdIndex;m++) prodResized[m] = newProd[m];
+    Product* prodObj = new Product(prodResized,currentProdIndex);
+    delete current;
+    return prodObj;
 }
 
 Container* Product::eval(){
@@ -305,7 +352,7 @@ Container* Product::eval(){
     current = combinedConstants(current);
     current = combinedIConstants(current);
     current = simpleFraction(current);
-    current = combineConstantExponents(current);
+    current = combineContainers(current);
     current = removeOne(current);
     current = checkIfAlone(current);
     

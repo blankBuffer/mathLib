@@ -183,6 +183,22 @@ Container* Power::invExpo(Container* current){
     return current;
     
 }
+
+Container* Power::expoOne(Container* current){
+    if(current->type!=POW) return current;
+    Power* currentPow = (Power*)current;
+    
+    if(currentPow->expo->type==CONST){
+        Const* c = (Const*)currentPow->expo;
+        if(c->value == 1){
+            Container* b = currentPow->base->copy();
+            delete current;
+            return b;
+        }
+    }
+    return current;
+}
+
 Container* Power::eval(){
     if(Container::printSteps) printf("\nevaluating power\n");
     Container* current = new Power(base->eval(),expo->eval());
@@ -192,6 +208,7 @@ Container* Power::eval(){
     current = invExpo(current);
     current = exponentZero(current);
     current = baseZeroOrOne(current);
+    current = expoOne(current);
     current = distributePower(current);
     return current;
 }

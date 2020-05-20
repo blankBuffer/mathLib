@@ -14,5 +14,7 @@
 #include "Const.hpp"
 #include "Product.hpp"
 #include "Power.hpp"
+#include "Sum.hpp"
+#include "Truth.hpp"
 
 #endif /* ConTypes_h */

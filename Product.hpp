@@ -25,7 +25,7 @@ struct Product : public Container{
     Container* removeOne(Container* current);
     Container* deleteIfZero(Container* current);
     Container* simpleFraction(Container* current);
-    Container* combineConstantExponents(Container* current);
+    Container* combineContainers(Container* current);
     void modList(Container* current,bool* indexOfR,int modLength);
     bool equalStruct(Container* c);
     bool containsVars();

@@ -26,6 +26,7 @@ struct Power : public Container{
     Container* baseZeroOrOne(Container* current);
     Container* fracExpo(Container* current);
     Container* invExpo(Container* current);
+    Container* expoOne(Container* current);
     bool equalStruct(Container* c);
     bool containsVars();
     bool containsContainer(Container* c);

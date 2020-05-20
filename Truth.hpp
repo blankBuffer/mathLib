@@ -10,5 +10,15 @@
 #define Truth_hpp
 
 #include <stdio.h>
+#include "Container.hpp"
+
+struct Truth{
+    Container* left,* right;
+    Truth(Container* left,Container* right);
+    Container* diff(int n);
+    Container* solve(Container* c);
+    
+    ~Truth();
+};
 
 #endif /* Truth_hpp */

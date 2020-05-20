@@ -8,7 +8,7 @@ void printM(){
 
 Container* createStruct(){
     while (true) {
-        printf("container type 0:Constant, 1:Variable, 2:Product, 3:Power\n");
+        printf("container type 0:Constant, 1:Variable, 2:Product, 3:Power, 4:Sum\n");
         int type = 0;
         scanf("%d",&type);
         if(type == Container::CONST){
@@ -40,33 +40,55 @@ Container* createStruct(){
             printf("describe expo\n");
             Container* expo = createStruct();
             return new Power(base,expo);
+        }else if(type == Container::SUM){
+            int len = 0;
+            printf("length of sum\n");
+            scanf("%d",&len);
+            Container** list = new Container*[len];
+            for(int i = 0;i<len;i++){
+                list[i] = createStruct();
+            }
+            Container* sum = new Sum(list,len);
+            return sum;
         }
     }
+}
+
+Truth* createTruth(){
+    printf("\ntype the left side\n");
+    Container* l = createStruct();
+    printf("\ntype the right side\n");
+    Container* r = createStruct();
+    return new Truth(l,r);
 }
 
 void simpleUserProg(){
     printM();
     Container* con = createStruct();
-    Container::printSteps = true;
     printf("----------------------------\n");
     con->print();
     Container* c = con->eval();
     printf("\n----------------------------\n");
     c->print();
     printf("\n----------------------------\n");
-    printf("\ncompare to other container\n");
-    Container* comparison = createStruct();
-    printf("\n----------------------------\n");
-    comparison->print();
-    printf("\n----------------------------\n");
-    printf("\n%d\n",con->containsContainer(comparison));
-    delete comparison;
     delete c;
     delete con;
     printM();
 }
 
+void askToShowSteps(){
+    char c = ' ';
+    scanf(" %c",&c);
+    if(c=='y'||c=='Y'){
+        Container::printSteps = true;
+    }
+}
+
 int main() {
+    
+    
+    askToShowSteps();
+    
     simpleUserProg();
     return 0;
     
