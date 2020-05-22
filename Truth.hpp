@@ -15,8 +15,11 @@
 struct Truth{
     Container* left,* right;
     Truth(Container* left,Container* right);
-    Container* diff(int n);
-    Container* solve(Container* c);
+    Truth* diff(int n);
+    Truth* solve(Container* c);
+    Truth* eval();
+    void bothSidesTheSame(Truth* current);
+    void print();
     
     ~Truth();
 };

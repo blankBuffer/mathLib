@@ -202,14 +202,14 @@ Container* Power::expoOne(Container* current){
 Container* Power::eval(){
     if(Container::printSteps) printf("\nevaluating power\n");
     Container* current = new Power(base->eval(),expo->eval());
-    current = convertToSinglePower(current);
-    current = tryToConst(current);
-    current = fracExpo(current);
-    current = invExpo(current);
-    current = exponentZero(current);
-    current = baseZeroOrOne(current);
-    current = expoOne(current);
-    current = distributePower(current);
+    current = convertToSinglePower(current);//(a^b)^c -> a^(b*c)
+    current = tryToConst(current);//2^3 -> 8
+    current = fracExpo(current);//8^(2/3) -> 4
+    current = invExpo(current);//4^(1/2)->2
+    current = exponentZero(current);//x^0->1
+    current = baseZeroOrOne(current);//1^x->1 and 0^x->0
+    current = expoOne(current);//x^1->x
+    current = distributePower(current);//(a*b)^y->(a^y)*(b^y)
     return current;
 }
 bool Power::equalStruct(Container* c){

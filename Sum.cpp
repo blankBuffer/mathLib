@@ -18,13 +18,13 @@ Sum::Sum(Container** containers,int containersLength){
 }
 
 void Sum::print(){
-    printf("{");
+    printf("(");
     for(int i = 0;i<containersLength-1;i++){
         containers[i]->print();
         printf("+");
     }
     if(containersLength>0) containers[containersLength-1]->print();
-    printf("}");
+    printf(")");
 }
 
 Container* Sum::copy(){
@@ -86,22 +86,84 @@ Container* Sum::checkIfAlone(Container* current){
 Container* Sum::combinedConstants(Container* current){
     if(current->type!=SUM) return current;
     Sum* currentSum = (Sum*)current;
-    int constCount = 0;
-    for(int i = 0;i<currentSum->containersLength;i++) if(currentSum->containers[i]->type == CONST) constCount++;
-    if(constCount < 2) return current;
-    if(Container::printSteps) printf("\nadding constants\n");
+    if(Container::printSteps) printf("\nadding constants together\n");
+    long num = 0L;
+    long den = 1L;
+    int count = 0;
     bool indexOfR[currentSum->containersLength];
-    long theSumOfConst = 0L;
+    for(int i = 0;i<currentSum->containersLength;i++) indexOfR[i] = false;
     for(int i = 0;i<currentSum->containersLength;i++){
-        if(currentSum->containers[i]->type == CONST){
-            Const* c = (Const*)currentSum->containers[i];
-            theSumOfConst+=c->value;
+        Container* currentObj = currentSum->containers[i];
+        //classify
+        if(currentObj->type == CONST){
             indexOfR[i] = true;
-        }else indexOfR[i] = false;
+            num+= (((Const*)currentObj)->value)*den;
+            fastFracReduc(num,den,&num,&den);
+            count++;
+            continue;
+        }
+        //inverse constant
+        if(currentObj->type == POW){
+            Power* tempP = (Power*)currentObj;
+            if(tempP->base->type == CONST && tempP->expo->type == CONST){
+                if(((Const*)(tempP->expo))->value == -1){
+                    indexOfR[i] = true;
+                    long d = ((Const*)(tempP->base))->value;
+                    num = num*d+den;
+                    den*=d;
+                    fastFracReduc(num,den,&num,&den);
+                    count++;
+                    continue;
+                }
+            }
+        }
+        //fraction
+        if(currentObj->type == PROD){
+            Product* tempP = (Product*)currentObj;
+            //if length 2
+            if(tempP->containersLength == 2){
+                bool case1 = tempP->containers[0]->type == CONST && tempP->containers[1]->type == POW;
+                bool case2 = tempP->containers[1]->type == CONST && tempP->containers[0]->type == POW;
+                Power* tempPPower = 0;
+                Const* tempPConst = 0;
+                if(case1){
+                    tempPConst = (Const*)tempP->containers[0];
+                    tempPPower = (Power*)tempP->containers[1];
+                }else if(case2){
+                    tempPConst = (Const*)tempP->containers[1];
+                    tempPPower = (Power*)tempP->containers[0];
+                }
+                if(case1||case2){
+                    if(tempPPower->base->type == CONST && tempPPower->expo->type == CONST){
+                        if(  ((Const*)tempPPower->expo)->value == -1  ){
+                        
+                            long num2 = tempPConst->value;
+                            long den2 = ((Const*)tempPPower->base)->value;
+                        
+                            num = num2*den+num*den2;
+                            den*=den2;
+                        
+                            indexOfR[i] = true;
+                            fastFracReduc(num,den,&num,&den);
+                            count++;
+                            continue;
+                        
+                        }
+                    }
+                }
+            }
+        }
     }
-    modList(current, indexOfR, currentSum->containersLength-constCount+1);
-    currentSum->containers[currentSum->containersLength-1] = new Const(theSumOfConst);
-    return currentSum;
+    if(num == 0) return current;
+    modList(currentSum,indexOfR,currentSum->containersLength-count+1);
+    Container** fracList = new Container*[2];
+    fracList[0] = new Const(num);
+    fracList[1] = new Power( new Const(den) ,new Const(-1) );
+    Product* frac = new Product(fracList,2);
+    Container* fracEval = frac->eval();
+    delete frac;
+    currentSum->containers[ currentSum->containersLength-1] = fracEval;
+    return current;
 }
 
 void Sum::modList(Container* current,bool* indexOfR,int modLength){
@@ -146,45 +208,136 @@ void Sum::fastFracReduc(long num,long den,long* outNum,long* outDen){
     *outDen = den;
 }
 
-Container* Sum::combinedIConstants(Container* current){
+Container* Sum::combineContainers(Container* current){
     if(current->type!=SUM) return current;
     Sum* currentSum = (Sum*)current;
-    long num = 0L;
-    long den = 1L;
-    int count = 0;
-    bool indexOfR[currentSum->containersLength];
-    for(int i = 0;i<currentSum->containersLength;i++) indexOfR[i] = false;
+    if(!current->containsVars()) return current;
     
-    for (int i = 0; i< currentSum->containersLength; i++) {
-        if(currentSum->containers[i]->type == POW){
-            Power* pCast = (Power*)currentSum->containers[i];
-            if(pCast->base->type == CONST && pCast->expo->type == CONST){
-                if(((Const*)pCast->expo)->value == -1){
-                    long den2 = ((Const*)pCast->base)->value;
-                    long newDen = den*den2;
-                    long newNum = num*den2+den;
-                    num = newNum;
-                    den = newDen;
-                    fastFracReduc(num, den, &num, &den);
-                    indexOfR[i] = true;
-                    count++;
+    if(Container::printSteps) printf("\ntrying to combine variables\n");
+
+    Container** newSum = new Container*[currentSum->containersLength];
+    int newSumIndex = 0;
+    
+    bool usedIndex[currentSum->containersLength];
+    for(int i = 0;i<currentSum->containersLength;i++) usedIndex[i] = false;
+    
+    //remove any parts in product without variables
+    //store sum in a list
+    
+    for(int i = 0;i<currentSum->containersLength;i++){
+        if(usedIndex[i]) continue;
+        Container** sumList = new Container*[currentSum->containersLength-i];
+        int sumListIndex = 0;
+        
+        Container* currentContainer = currentSum->containers[i]->copy();
+        //extract out non var Types
+        if(currentContainer->type == PROD){
+            Product* currentContainerPCast = (Product*)currentContainer;
+            
+            bool indexOfC[currentContainerPCast->containersLength];
+            int numberOfC = 0;
+            for(int j = 0;j<currentContainerPCast->containersLength;j++) {
+                if(!currentContainerPCast->containers[j]->containsVars() ){
+                    indexOfC[j] = true;
+                    numberOfC++;
+                }else indexOfC[j] = false;
+            }
+            Container** subProdList = new Container*[numberOfC];
+            int currentSubProdIndex = 0;
+            for(int j = 0;j<currentContainerPCast->containersLength;j++){
+                if(indexOfC[j]){
+                    subProdList[currentSubProdIndex] = currentContainerPCast->containers[j]->copy();
+                    currentSubProdIndex++;
+                }
+            }
+            Product* subProd = new Product(subProdList,numberOfC);
+            
+            //add to sumList
+            sumList[sumListIndex] = subProd;
+            sumListIndex++;
+            
+            currentContainerPCast->modList(currentContainerPCast,indexOfC,currentContainerPCast->containersLength-numberOfC);
+            Container* currentContainerPCastEval = currentContainerPCast->eval();
+            delete currentContainerPCast;
+            currentContainer = currentContainerPCastEval;
+            
+            
+        }else{
+            sumList[sumListIndex] = new Const(1);
+            sumListIndex++;
+        }
+        //
+        //extrated non vars out of currentContainer
+        //
+        for(int n = i+1;n<currentSum->containersLength;n++){
+            if(usedIndex[n]) continue;
+            Container* compare = currentSum->containers[n];
+            if(currentContainer->equalStruct(compare)){
+                sumList[sumListIndex] = new Const(1);
+                sumListIndex++;
+                usedIndex[n] = true;
+            }else{
+                //seperate compare
+                if(compare->type == PROD){
+                    Product* compareProd = (Product*)compare->copy();
+                    bool indexOfC[compareProd->containersLength];
+                    int numberOfC = 0;
+                    for(int j = 0;j<compareProd->containersLength;j++){
+                        if(!compareProd->containers[j]->containsVars()){
+                            indexOfC[j] = true;
+                            numberOfC++;
+                        }else indexOfC[j] = false;
+                    }
+                    Container** prodOfConst = new Container*[numberOfC];
+                    int indexOfProdOfConst = 0;
+                    for(int j = 0;j<compareProd->containersLength;j++){
+                        if(indexOfC[j]){
+                            prodOfConst[indexOfProdOfConst] = compareProd->containers[j]->copy(); 
+                            indexOfProdOfConst++;
+                        }
+                    }
+                    Container* prodOfConstObj = new Product(prodOfConst,numberOfC);
+                    compareProd->modList(compareProd,indexOfC,compareProd->containersLength-numberOfC);
+                    Container* compareProdEval = compareProd->eval();
+                    delete compareProd;
+                    compare = compareProdEval;
+                    if(currentContainer->equalStruct(compare)){
+                        sumList[sumListIndex] = prodOfConstObj;
+                        sumListIndex++;
+                        usedIndex[n] = true;
+                    }else{
+                        delete prodOfConstObj;
+                    }
+                    delete compare;
                 }
             }
         }
+        
+        Container** reducedSumList = new Container*[sumListIndex];
+        for(int m = 0;m<sumListIndex;m++) reducedSumList[m] = sumList[m];
+        delete[] sumList;
+        
+        Sum* sumObj = new Sum(reducedSumList,sumListIndex);
+        
+        
+        Container** newProdList = new Container*[2];
+        newProdList[0] = sumObj;
+        newProdList[1] = currentContainer->copy();
+        delete currentContainer;
+        Product* newProd = new Product(newProdList,2);
+        newSum[newSumIndex] = newProd;
+        newSumIndex++;
+        
     }
+    Container** newSumResize = new Container*[newSumIndex];
+    for(int m = 0;m < newSumIndex;m++){
+        newSumResize[m] = newSum[m]->eval();
+        delete newSum[m];
+    }
+    delete[] newSum;
     
-    if(count<2) return current;
-    if(Container::printSteps) printf("\nadding inverse constants\n");
-    modList(currentSum, indexOfR, currentSum->containersLength-count+1);
-    
-    Container** list = new Container*[2];
-    list[0] = new Const(num);
-    list[1] = new Power(new Const(den),new Const(-1));
-    Product* addedInverse = new Product(list,2);
-    Container* evalAddedInverse = addedInverse->eval();
-    delete addedInverse;
-    currentSum->containers[currentSum->containersLength-1] = evalAddedInverse;
-    return current;
+    delete currentSum;
+    return new Sum(newSumResize,newSumIndex);
 }
 
 Container* Sum::eval(){
@@ -193,9 +346,9 @@ Container* Sum::eval(){
     for(int i = 0;i<containersLength;i++) containers[i] = this->containers[i]->eval();
     Container* current = new Sum(containers,containersLength);
     
-    current = convertToSingleSumList(current);
-    current = combinedConstants(current);
-    current = combinedIConstants(current);
+    current = convertToSingleSumList(current);// (a+(b+c))->(a+b+c)
+    current = combinedConstants(current);//adds fractions whole numbers and inverse constants together
+    current = combineContainers(current);// (x+3*x)->4*x
     current = checkIfAlone(current);
     
     return current;

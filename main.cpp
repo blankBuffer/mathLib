@@ -64,15 +64,15 @@ Truth* createTruth(){
 
 void simpleUserProg(){
     printM();
-    Container* con = createStruct();
+    Truth* t = createTruth();
     printf("----------------------------\n");
-    con->print();
-    Container* c = con->eval();
+    t->print();
+    Truth* e = t->eval();
     printf("\n----------------------------\n");
-    c->print();
+    e->print();
     printf("\n----------------------------\n");
-    delete c;
-    delete con;
+    delete t;
+    delete e;
     printM();
 }
 
@@ -86,7 +86,7 @@ void askToShowSteps(){
 
 int main() {
     
-    
+    printf("\nshow steps? y/n\n");
     askToShowSteps();
     
     simpleUserProg();

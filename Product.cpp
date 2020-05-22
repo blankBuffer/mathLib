@@ -316,7 +316,7 @@ Container* Product::combineContainers(Container* current){
                 }
             }
         }
-        Power* com = 0;
+        Container* com = 0;
         if(currentSumIndex>1){
             Container** sumResized = new Container*[currentSumIndex];
             for(int m = 0;m<currentSumIndex;m++) sumResized[m] = sum[m];
@@ -324,8 +324,19 @@ Container* Product::combineContainers(Container* current){
             Sum* sumObj = new Sum(sumResized,currentSumIndex);
             com = new Power(currentCont->copy(),sumObj);
         }else{
-            com = new Power(currentCont->copy(),sum[0]);
-            delete[] sum;
+            if(sum[0]->type == CONST){
+                if(((Const*)sum[0])->value == 1){
+                    com = currentCont->copy();
+                    delete[] sum;
+                    delete sum[0];
+                }else{
+                    com = new Power(currentCont->copy(),sum[0]);
+                    delete[] sum;
+                }
+            }else{
+                com = new Power(currentCont->copy(),sum[0]);
+                delete[] sum;
+            }
         }
         
         Container* comEval = com->eval();
@@ -340,6 +351,53 @@ Container* Product::combineContainers(Container* current){
     return prodObj;
 }
 
+Container* Product::distribute(Container* current){
+    if(current->type!=PROD) return current;
+    Product* currentProd = (Product*)current;
+    
+    int indexOfSum = -1;
+    
+    for(int i = 0;i<currentProd->containersLength;i++){
+        if(currentProd->containers[i]->type == SUM){
+            indexOfSum = i;
+            break;
+        }
+    }
+    if(indexOfSum == -1) return current;
+    if(Container::printSteps) printf("\ndistribute to sum\n");
+    
+    Sum* sumObj = (Sum*)(currentProd->containers[indexOfSum])->copy();
+    
+    Container** prodResized = new Container*[currentProd->containersLength-1];
+    int currentIndex = 0;
+    
+    for(int i = 0;i<currentProd->containersLength;i++){
+        if(i==indexOfSum) continue;
+        prodResized[currentIndex] = currentProd->containers[i]->copy();
+        currentIndex++;
+    }
+    delete currentProd;
+    
+    currentProd = new Product(prodResized,currentProd->containersLength-1);
+    //
+    
+    for(int i = 0;i<sumObj->containersLength;i++){
+        
+        Container* currentSumElement = sumObj->containers[i];
+        Container** prodList = new Container*[2];
+        prodList[0] = currentSumElement;
+        prodList[1] = currentProd->copy();
+        sumObj->containers[i] = new Product(prodList,2);
+        
+    }
+    
+    delete currentProd;
+    
+    Container* sumObjEval = sumObj->eval();
+    delete sumObj;
+    return sumObjEval;
+}
+
 Container* Product::eval(){
     if(Container::printSteps) printf("\nevaluating product\n");
     //make local containers list with simplified sub components
@@ -347,13 +405,14 @@ Container* Product::eval(){
     for(int i = 0;i<containersLength;i++) containers[i] = this->containers[i]->eval();
     Container* current = new Product(containers,containersLength);
     
-    current = convertToSingleProductList(current);
-    current = deleteIfZero(current);
-    current = combinedConstants(current);
-    current = combinedIConstants(current);
-    current = simpleFraction(current);
-    current = combineContainers(current);
-    current = removeOne(current);
+    current = convertToSingleProductList(current);// (a*(b*c))->(a*b*c)
+    current = deleteIfZero(current);//(a*0)->0
+    current = combinedConstants(current);//(5*3*2)->30
+    current = combinedIConstants(current);//((1/4)*(1/2))->1/8
+    current = combineContainers(current);//(x^a)*(x^b)->x^(a+b)
+    current = simpleFraction(current);//(4/8)->1/2
+    current = removeOne(current);//(1*a*b)->(a*b)
+    current = distribute(current);//a*(b+c)->(a*b+a*c)
     current = checkIfAlone(current);
     
     //returing new object after basic simplification

@@ -25,7 +25,7 @@ struct Sum : public Container{
     Container* convertToSingleSumList(Container* current);
     Container* checkIfAlone(Container* current);
     Container* combinedConstants(Container* current);
-    Container* combinedIConstants(Container* current);
+    Container* combineContainers(Container* current);
     void fastFracReduc(long num,long den,long* outNum,long* outDen);
     void modList(Container* current,bool* indexOfR,int modLength);
     ~Sum();
