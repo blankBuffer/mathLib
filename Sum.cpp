@@ -6,10 +6,7 @@
 //  Copyright © 2020 Benjamin Currie. All rights reserved.
 //
 
-#include "Sum.hpp"
-#include "Const.hpp"
-#include "Power.hpp"
-#include "Product.hpp"
+#include "ConTypes.hpp"
 
 Sum::Sum(Container** containers,int containersLength){
     this->containers = containers;
@@ -86,6 +83,7 @@ Container* Sum::checkIfAlone(Container* current){
 Container* Sum::combinedConstants(Container* current){
     if(current->type!=SUM) return current;
     Sum* currentSum = (Sum*)current;
+    if(currentSum->containersLength<2) return current;
     if(Container::printSteps) printf("\nadding constants together\n");
     long num = 0L;
     long den = 1L;
@@ -431,6 +429,12 @@ bool Sum::containsContainer(Container* c){
         if(contains) return true;
     }
     return false;
+}
+
+int Sum::countVars(Var* v){
+    int count = 0;
+    for(int i = 0;i<containersLength;i++) count+=containers[i]->countVars(v);
+    return count;
 }
 
 Sum::~Sum(){

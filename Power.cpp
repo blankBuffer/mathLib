@@ -6,9 +6,7 @@
 //  Copyright © 2020 Benjamin Currie. All rights reserved.
 //
 
-#include "Power.hpp"
-#include "Const.hpp"
-#include "Product.hpp"
+#include "ConTypes.hpp"
 
 void Power::print(){
     printf("(");
@@ -191,6 +189,7 @@ Container* Power::expoOne(Container* current){
     if(currentPow->expo->type==CONST){
         Const* c = (Const*)currentPow->expo;
         if(c->value == 1){
+            if(Container::printSteps) printf("\nexponent one\n");
             Container* b = currentPow->base->copy();
             delete current;
             return b;
@@ -241,6 +240,12 @@ Power::Power(Container* base,Container* expo){
     this->expo = expo;
     type = POW;
 }
+
+int Power::countVars(Var* v){
+    
+    return base->countVars(v)+expo->countVars(v);
+}
+
 Power::~Power(){
     delete base;
     delete expo;

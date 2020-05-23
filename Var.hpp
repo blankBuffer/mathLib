@@ -22,6 +22,7 @@ struct Var: public Container{
     bool equalStruct(Container* c);
     bool containsVars();
     bool containsContainer(Container* c);
+    int countVars(Var* v);
     ~Var();
 };
 

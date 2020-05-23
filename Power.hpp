@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Container.hpp"
+#include "Var.hpp"
 
 struct Power : public Container{
 
@@ -30,6 +31,7 @@ struct Power : public Container{
     bool equalStruct(Container* c);
     bool containsVars();
     bool containsContainer(Container* c);
+    int countVars(Var* v);
     Power(Container* base,Container* expo);
     ~Power();
 };

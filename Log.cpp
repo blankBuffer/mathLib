@@ -6,11 +6,7 @@
 //  Copyright © 2020 Benjamin Currie. All rights reserved.
 //
 
-#include "Log.hpp"
-#include "Const.hpp"
-#include "Power.hpp"
-#include "Product.hpp"
-#include "Sum.hpp"
+#include "ConTypes.hpp"
 
 Log::Log(Container* base,Container* expr){
     this->base = base;
@@ -90,6 +86,40 @@ Container* Log::containsProduct(Container* current){
     return current;
 }
 
+Container* Log::baseExprConst(Container* current){
+    if(current->type != LOG) return current;
+    Log* currentLog = (Log*)current;
+    if(currentLog->base->type == CONST && currentLog->expr->type == CONST){
+        long base = ((Const*)currentLog->base)->value;
+        long expr = ((Const*)currentLog->expr)->value;
+        int count = 0;
+        long accum = 1L;
+        while(accum<expr){
+            accum*=base;
+            count++;
+        }
+        if(accum == expr){
+            delete current;
+            return new Const(count);
+        }
+    }
+    return current;
+}
+
+Container* Log::exprIsOne(Container* current){
+    if(current->type != LOG) return current;
+    Log* currentLog = (Log*)current;
+    
+    if(currentLog->expr->type == CONST){
+        Const* c = (Const*)currentLog->expr;
+        if(c->value == 1){
+            delete current;
+            return new Const(0);
+        }
+    }
+    return current;
+}
+
 Container* Log::eval(){
     if(Container::printSteps){
         printf("\n");
@@ -102,7 +132,8 @@ Container* Log::eval(){
     current = baseExprSame(current);//base same as expression log(x,x) -> 1
     current = containsProduct(current);//log(a,b*c) -> log(a,b)+log(a,c)
     current = containsPower(current);//contains exponent log(a,b^c) -> c*log(a,b) or log(a^b,c)->b^(-1)*log(a,c)
-    
+    current = baseExprConst(current);//reduces log to const log(2,8) -> 3
+    current = exprIsOne(current);//log(x,1) -> 0
     
     return current;
 }
@@ -129,6 +160,10 @@ bool Log::containsContainer(Container* c){
     contains = this->expr->containsContainer(c);
     if(contains) return true;
     return false;
+}
+
+int Log::countVars(Var* v){
+    return base->countVars(v)+expr->countVars(v);
 }
     
 Log::~Log(){

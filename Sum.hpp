@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Container.hpp"
+#include "Var.hpp"
 
 struct Sum : public Container{
     Container** containers;
@@ -22,6 +23,7 @@ struct Sum : public Container{
     bool equalStruct(Container* c);
     bool containsVars();
     bool containsContainer(Container* c);
+    int countVars(Var* v);
     Container* convertToSingleSumList(Container* current);
     Container* checkIfAlone(Container* current);
     Container* combinedConstants(Container* current);

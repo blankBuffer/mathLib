@@ -16,7 +16,7 @@ struct Truth{
     Container* left,* right;
     Truth(Container* left,Container* right);
     Truth* diff(int n);
-    Truth* solve(Container* c);
+    Truth* solve(Var* v);
     Truth* eval();
     void print();
     

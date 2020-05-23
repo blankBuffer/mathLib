@@ -30,9 +30,7 @@ Container* createStruct(){
             printf("length of product\n");
             scanf("%d",&len);
             Container** list = new Container*[len];
-            for(int i = 0;i<len;i++){
-                list[i] = createStruct();
-            }
+            for(int i = 0;i<len;i++) list[i] = createStruct();
             Container* prod = new Product(list,len);
             return prod;
         }else if(type == Container::POW){
@@ -46,9 +44,7 @@ Container* createStruct(){
             printf("length of sum\n");
             scanf("%d",&len);
             Container** list = new Container*[len];
-            for(int i = 0;i<len;i++){
-                list[i] = createStruct();
-            }
+            for(int i = 0;i<len;i++)list[i] = createStruct();
             Container* sum = new Sum(list,len);
             return sum;
         }else if(type == Container::LOG){
@@ -71,23 +67,29 @@ Truth* createTruth(){
 
 void simpleUserProg(){
     printM();
+    int startMemory = Container::conCount;
+    //
     Truth* t = createTruth();
-    printf("----------------------------\n");
+    printf("\n-----------------------------------\n");
     t->print();
-    //time to calculate
-    
-    clock_t time; 
-    time = clock(); 
-    Truth* e = t->eval();
-    time = clock() - time; 
-    int time_taken = (int)(((double)time)/CLOCKS_PER_SEC*1000000.0);
-    printf("\nIt took %d micro seconds\n", time_taken); 
-    printf("\n----------------------------\n");
-    e->print();
-    printf("\n----------------------------\n");
+    printf("\n-----------------------------------\n");
+    char name[16];
+    for(int i = 0;i<16;i++) name[i] = '\0';
+    printf("type variable name to solve for\n");
+    scanf("%s",name);
+    char* nameH = new char[16];
+    for(int i = 0;i<16;i++) nameH[i] = name[i];
+    Var* v = new Var(nameH,16);
+    //
+    printf("\n-----------------------------------\n");
+    Truth* solution = t->solve(v);
+    solution->print();
+    printf("\n-----------------------------------\n");
     delete t;
-    delete e;
+    delete solution;
+    delete v;
     printM();
+    if(Container::conCount!=startMemory) printf("\nmemory leak detected\n");
 }
 
 void askToShowSteps(){

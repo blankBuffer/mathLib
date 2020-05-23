@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Container.hpp"
+#include "Var.hpp"
 
 struct Const: public Container{
     long int value;
@@ -21,6 +22,7 @@ struct Const: public Container{
     bool equalStruct(Container* c);
     bool containsVars();
     bool containsContainer(Container* c);
+    int countVars(Var* v);
     ~Const();
 };
 

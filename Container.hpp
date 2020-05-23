@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 
+struct Var;
+
 struct Container{
     static const int CONST = 0,VAR = 1,PROD = 2,POW = 3,SUM = 4,LOG = 5;
     static int conCount;
@@ -22,6 +24,7 @@ struct Container{
     virtual bool equalStruct(Container* c) = 0;
     virtual bool containsVars() = 0;
     virtual bool containsContainer(Container* c) = 0;
+    virtual int countVars(Var* v) = 0;
     Container();
     virtual ~Container();
 };

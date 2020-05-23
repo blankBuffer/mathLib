@@ -6,7 +6,7 @@
 //  Copyright © 2020 Benjamin Currie. All rights reserved.
 //
 
-#include "Var.hpp"
+#include "ConTypes.hpp"
 
 Var::Var(char* name,int nameLength){
     this->name = name;
@@ -45,6 +45,10 @@ bool Var::containsVars(){
 }
 bool Var::containsContainer(Container* c){
     return c->equalStruct(this);
+}
+int Var::countVars(Var* v){
+    if(v->equalStruct(this)) return 1;
+    return 0;
 }
 Var::~Var(){
     delete [] name;

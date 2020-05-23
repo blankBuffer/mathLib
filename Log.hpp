@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Container.hpp"
+#include "Var.hpp"
 
 struct Log: public Container{
     Container* base, *expr;
@@ -22,9 +23,12 @@ struct Log: public Container{
     bool equalStruct(Container* c);
     bool containsVars();
     bool containsContainer(Container* c);
+    int countVars(Var* v);
     Container* baseExprSame(Container* current);
     Container* containsPower(Container* current);
     Container* containsProduct(Container* current);
+    Container* baseExprConst(Container* current);
+    Container* exprIsOne(Container* current);
     ~Log();
 };
 

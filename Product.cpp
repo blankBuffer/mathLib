@@ -6,11 +6,7 @@
 //  Copyright © 2020 Benjamin Currie. All rights reserved.
 //
 
-#include "Container.hpp"
-#include "Product.hpp"
-#include "Const.hpp"
-#include "Power.hpp"
-#include "Sum.hpp"
+#include "ConTypes.hpp"
 
 Product::Product(Container** containers,int containersLength){
     this->containers = containers;
@@ -360,12 +356,17 @@ Container* Product::distribute(Container* current){
     
     int indexOfSum = -1;
     
+    int count = 0;
+    
     for(int i = 0;i<currentProd->containersLength;i++){
         if(currentProd->containers[i]->type == SUM){
             indexOfSum = i;
-            break;
+            count ++;
         }
     }
+    
+    if(count>1) return current;
+    
     if(indexOfSum == -1) return current;
     if(Container::printSteps) printf("\ndistribute to sum\n");
     
@@ -467,6 +468,11 @@ bool Product::containsContainer(Container* c){
         if(contains) return true;
     }
     return false;
+}
+int Product::countVars(Var* v){
+    int count = 0;
+    for(int i = 0;i<containersLength;i++) count+=containers[i]->countVars(v);
+    return count;
 }
 Product::~Product(){
     for(int i = 0;i<containersLength;i++) delete containers[i];

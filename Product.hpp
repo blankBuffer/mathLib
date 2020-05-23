@@ -10,6 +10,7 @@
 #define Product_hpp
 
 #include <stdio.h>
+#include "Var.hpp"
 
 struct Product : public Container{
     Container** containers;
@@ -31,6 +32,7 @@ struct Product : public Container{
     bool equalStruct(Container* c);
     bool containsVars();
     bool containsContainer(Container* c);
+    int countVars(Var* v);
     ~Product();
 };
 

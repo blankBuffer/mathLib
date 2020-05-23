@@ -6,8 +6,7 @@
 //  Copyright © 2020 Benjamin Currie. All rights reserved.
 //
 
-#include "Const.hpp"
-#include "Container.hpp"
+#include "ConTypes.hpp"
 
 Const::Const(long value){
     this->value = value;
@@ -44,5 +43,11 @@ bool Const::containsVars(){
 bool Const::containsContainer(Container* c){
     return c->equalStruct(this);
 }
+
+int Const::countVars(Var* v){
+    
+    return 0;
+}
+
 Const::~Const(){
 };

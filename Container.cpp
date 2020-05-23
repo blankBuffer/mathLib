@@ -7,6 +7,7 @@
 //
 
 #include "Container.hpp"
+#include "ConTypes.hpp"
 
 int Container::conCount = 0;
 bool Container::printSteps = false;
