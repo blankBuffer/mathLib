@@ -8,6 +8,8 @@
 
 #include "Truth.hpp"
 #include "Const.hpp"
+#include "Product.hpp"
+#include "Sum.hpp"
 
 Truth::Truth(Container* left,Container* right){
     this->left = left;
@@ -20,28 +22,23 @@ void Truth::print(){
     right->print();
 }
 
-void Truth::bothSidesTheSame(Truth* current){
+Truth* Truth::eval(){
     
-    if(current->left->equalStruct(current->right)){
-        if(Container::printSteps) printf("\nboth sides the same\n");
-        delete current->left;
-        delete current->right;
-        current->left = new Const(0);
-        current->right = new Const(0);
-    }
+    Container** sumList = new Container*[2];
+    sumList[0] = right->copy();
     
+    Container** prodList = new Container*[2];
+    prodList[0] = left->copy();
+    prodList[1] = new Const(-1);
+    
+    sumList[1] = new Product(prodList,2);
+    
+    Sum* allOneSide = new Sum(sumList,2);
+    Container* allOneSideEval = allOneSide->eval();
+    delete allOneSide;
+    return new Truth( new Const(0), allOneSideEval );
 }
 
-Truth* Truth::eval(){
-    Container* currentLeft = left->eval();
-    Container* currentRight = right->eval();
-    Truth* current = new Truth(currentLeft,currentRight);
-    
-    bothSidesTheSame(current);
-    
-    return current;
-    
-}
 Truth::~Truth(){
     delete left;
     delete right;

@@ -16,5 +16,6 @@
 #include "Power.hpp"
 #include "Sum.hpp"
 #include "Truth.hpp"
+#include "Log.hpp"
 
 #endif /* ConTypes_h */

@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 struct Container{
-    static const int CONST = 0,VAR = 1,PROD = 2,POW = 3,SUM = 4;
+    static const int CONST = 0,VAR = 1,PROD = 2,POW = 3,SUM = 4,LOG = 5;
     static int conCount;
     static bool printSteps;
     int type;

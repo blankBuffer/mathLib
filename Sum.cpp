@@ -154,7 +154,14 @@ Container* Sum::combinedConstants(Container* current){
             }
         }
     }
-    if(num == 0) return current;
+    if(count < 2) return current;
+    
+    if(den == 1L){
+        modList(currentSum,indexOfR,currentSum->containersLength-count+1);
+        currentSum->containers[ currentSum->containersLength-1] = new Const(num);
+        return current;
+    }
+    
     modList(currentSum,indexOfR,currentSum->containersLength-count+1);
     Container** fracList = new Container*[2];
     fracList[0] = new Const(num);
@@ -340,7 +347,36 @@ Container* Sum::combineContainers(Container* current){
     return new Sum(newSumResize,newSumIndex);
 }
 
+Container* Sum::removeZeros(Container* current){
+    if(current->type!=SUM) return current;
+    Sum* currentSum = (Sum*)current;
+    
+    bool indexOfR[currentSum->containersLength];
+    int count = 0;
+    
+    for(int i = 0;i<currentSum->containersLength;i++){
+        indexOfR[i] = false;
+        if(currentSum->containers[i]->type == CONST){
+            if(((Const*)currentSum->containers[i])->value == 0){
+                indexOfR[i] = true;
+                count++;
+            }
+        }
+    }
+    
+    if(count == 0) return current;
+    
+    modList(currentSum,indexOfR,currentSum->containersLength-count);
+    
+    return current;
+}
+
 Container* Sum::eval(){
+    if(Container::printSteps){
+        printf("\n");
+        this->print();
+        printf("\n");
+    }
     if(Container::printSteps) printf("\nevaluating sum\n");
     Container** containers = new Container*[containersLength];
     for(int i = 0;i<containersLength;i++) containers[i] = this->containers[i]->eval();
@@ -349,6 +385,7 @@ Container* Sum::eval(){
     current = convertToSingleSumList(current);// (a+(b+c))->(a+b+c)
     current = combinedConstants(current);//adds fractions whole numbers and inverse constants together
     current = combineContainers(current);// (x+3*x)->4*x
+    current = removeZeros(current);//0+x -> x
     current = checkIfAlone(current);
     
     return current;

@@ -18,7 +18,6 @@ struct Truth{
     Truth* diff(int n);
     Truth* solve(Container* c);
     Truth* eval();
-    void bothSidesTheSame(Truth* current);
     void print();
     
     ~Truth();

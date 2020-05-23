@@ -13,9 +13,9 @@
 void Power::print(){
     printf("(");
     base->print();
-    printf(")^{");
+    printf(")^(");
     expo->print();
-    printf("}");
+    printf(")");
 }
 Container* Power::copy(){
     return new Power(base->copy(),expo->copy());
@@ -200,6 +200,11 @@ Container* Power::expoOne(Container* current){
 }
 
 Container* Power::eval(){
+    if(Container::printSteps){
+        printf("\n");
+        this->print();
+        printf("\n");
+    }
     if(Container::printSteps) printf("\nevaluating power\n");
     Container* current = new Power(base->eval(),expo->eval());
     current = convertToSinglePower(current);//(a^b)^c -> a^(b*c)

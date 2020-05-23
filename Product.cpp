@@ -18,13 +18,13 @@ Product::Product(Container** containers,int containersLength){
     type = PROD;
 }
 void Product::print(){
-    printf("{");
+    printf("(");
     for(int i = 0;i<containersLength-1;i++){
         containers[i]->print();
         printf("*");
     }
     if(containersLength>0) containers[containersLength-1]->print();
-    printf("}");
+    printf(")");
 }
 Container* Product::copy(){
     Container** list = new Container*[containersLength];
@@ -278,6 +278,9 @@ void Product::modList(Container* current,bool* indexOfR,int modLength){
 Container* Product::combineContainers(Container* current){
     if(current->type!=PROD) return current;
     Product* currentProd = (Product*)current;
+    
+    if(!currentProd->containsVars()) return current;
+    
     Container** newProd = new Container*[currentProd->containersLength];
     int currentProdIndex = 0;
     bool usedIndex[currentProd->containersLength];
@@ -399,11 +402,18 @@ Container* Product::distribute(Container* current){
 }
 
 Container* Product::eval(){
-    if(Container::printSteps) printf("\nevaluating product\n");
+    if(Container::printSteps){
+        printf("\n");
+        printf("\nevaluating product\n");
+        printf("\n");
+    }
+    if(Container::printSteps) this->print();
     //make local containers list with simplified sub components
     Container** containers = new Container*[containersLength];
     for(int i = 0;i<containersLength;i++) containers[i] = this->containers[i]->eval();
     Container* current = new Product(containers,containersLength);
+    
+    //order matters
     
     current = convertToSingleProductList(current);// (a*(b*c))->(a*b*c)
     current = deleteIfZero(current);//(a*0)->0

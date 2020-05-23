@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h> 
 
 #include "ConTypes.hpp"
 
@@ -8,7 +9,7 @@ void printM(){
 
 Container* createStruct(){
     while (true) {
-        printf("container type 0:Constant, 1:Variable, 2:Product, 3:Power, 4:Sum\n");
+        printf("container type 0:Constant, 1:Variable, 2:Product, 3:Power, 4:Sum, 5:Log\n");
         int type = 0;
         scanf("%d",&type);
         if(type == Container::CONST){
@@ -50,6 +51,12 @@ Container* createStruct(){
             }
             Container* sum = new Sum(list,len);
             return sum;
+        }else if(type == Container::LOG){
+            printf("describe base\n");
+            Container* base = createStruct();
+            printf("describe expression\n");
+            Container* expr = createStruct();
+            return new Log(base,expr);
         }
     }
 }
@@ -67,7 +74,14 @@ void simpleUserProg(){
     Truth* t = createTruth();
     printf("----------------------------\n");
     t->print();
+    //time to calculate
+    
+    clock_t time; 
+    time = clock(); 
     Truth* e = t->eval();
+    time = clock() - time; 
+    int time_taken = (int)(((double)time)/CLOCKS_PER_SEC*1000000.0);
+    printf("\nIt took %d micro seconds\n", time_taken); 
     printf("\n----------------------------\n");
     e->print();
     printf("\n----------------------------\n");
@@ -86,7 +100,7 @@ void askToShowSteps(){
 
 int main() {
     
-    printf("\nshow steps? y/n\n");
+    printf("\nshow steps for debug? y/n\n");
     askToShowSteps();
     
     simpleUserProg();
